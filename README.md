@@ -13,15 +13,17 @@ pip install bs4
 ```
 pip install requests
 ```
+** parse-torrent-name **
+```
+pip install parse-torrent-name
+```
 ## Usage
 ```python
 from subscenery.scrapper import SubSceneScrapper
 movie_name = 'August Rush'
 # initialize scrapper
 scrapper = SubSceneScrapper(movie_name)
-# get Exact Result
-exact_result = scrapper.search_media()['Exact'][0]['link']
 # get subtitles
-scrapper.get_subtitles(exact_result)
+scrapper.get_subtitles()
 ```
 
