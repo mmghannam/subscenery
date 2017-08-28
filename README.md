@@ -13,7 +13,7 @@ pip install bs4
 ```
 pip install requests
 ```
-** parse-torrent-name **
+**parse-torrent-name**
 ```
 pip install parse-torrent-name
 ```
