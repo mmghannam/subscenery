@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as soup
 import requests
 from itertools import islice
 import PTN
-
+import pdb
 
 class Scrapper:
     def __init__(self, link):
@@ -71,12 +71,20 @@ class SubSceneScrapper(Scrapper):
         subtitles = {}
         for item in results_table_contents:
             if item.name == 'tr':
-                # print(item.td['class'])
                 if item.td['class'] == ['a1']:
+                    rating = None
+                    classes = item.td.a.span['class']
+                    if 'positive-icon' in classes:
+                        rating = 'good'
+                    elif 'neutral-icon' in classes:
+                        rating = 'neutral'
+                    elif 'bad-icon' in classes:
+                        rating = 'bad'
                     language = item.td.a.span.get_text().strip(' \r\n\t')
                     subtitle = {
-                        # TODO: add rating
                         'uri': item.td.a['href'],
+                        'title': item.td.a.span.next_element.next_element.next_element.get_text().strip(' \r\n\t'),
+                        'rating': rating
                     }
                     if language in subtitles:
                         subtitles[language].append(subtitle)
