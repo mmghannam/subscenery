@@ -114,15 +114,14 @@ class SubSceneScrapper(Scrapper):
         else:
             return self.__get_subtitles_from_uri(search_result['Exact'][0]['uri'])
 
-    def get_best_match_subtitle(self):
+    def get_best_match_subtitle(self, language):
         subtitles = self.get_subtitles()
         max_similarity = 0
         best_match = None
-        for language, list_of_subtitles in subtitles.items():
-            for subtitle in list_of_subtitles:
-                similarity = similar(subtitle['title'], self.movie_name)
-                if similarity > max_similarity:
-                    max_similarity = similarity
-                    best_match = subtitle
+        for subtitle in subtitles[language]:
+            similarity = similar(subtitle['title'], self.movie_name)
+            if similarity > max_similarity:
+                max_similarity = similarity
+                best_match = subtitle
 
         return best_match
