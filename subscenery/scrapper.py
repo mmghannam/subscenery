@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup as soup
 import requests
-from itertools import islice
 import PTN
+import os
+from zipfile import ZipFile
 from difflib import SequenceMatcher
+import shutil
 
 
 def similar(a, b):
@@ -31,6 +33,7 @@ class SubSceneScrapper(Scrapper):
         :param is_filename: indicated 
         """
         if is_filename:
+            self.filename = movie_name
             parsed_info = PTN.parse(movie_name)
             movie_name = parsed_info['title']
 
@@ -115,13 +118,72 @@ class SubSceneScrapper(Scrapper):
             return self.__get_subtitles_from_uri(search_result['Exact'][0]['uri'])
 
     def get_best_match_subtitle(self, language):
+        """
+        returns the subtitle that best matches the subtitle filename
+        :param language: the language to be searched in
+        :return: a subtitle dict
+        """
         subtitles = self.get_subtitles()
         max_similarity = 0
         best_match = None
         for subtitle in subtitles[language]:
-            similarity = similar(subtitle['title'], self.movie_name)
+            similarity = similar(subtitle['title'], self.filename)
             if similarity > max_similarity:
                 max_similarity = similarity
                 best_match = subtitle
 
         return best_match
+
+    def download_subtitle_to_path(self, subtitle, path):
+        """
+        Downloads subtitle file to a given path
+        :param subtitle: a subtitle dict
+        :param path: the directory for the subtitle to be downloaded in
+        """
+        # getting subtitle download page html
+        subtitle_download_page_html = requests.get(SubSceneScrapper.__get_subtitle_full_link(subtitle)).content
+
+        # scraping download uri from html
+        download_uri = soup(subtitle_download_page_html, 'html.parser').find_all(id="downloadButton")[0]['href']
+
+        # add subscene domain to uri
+        full_download_link = SubSceneScrapper.SUBSCENE_DOMAIN + download_uri
+
+        # downloading subtitle zip file
+        downloaded_zip = requests.get(full_download_link)
+
+        # saving zipfile
+        zip_file_name = subtitle['title'] + ".zip"
+        with open(zip_file_name, 'wb') as outfile:
+            outfile.write(downloaded_zip.content)
+
+        # extracting zipfile
+        zip_object = ZipFile(zip_file_name, 'r')
+        zip_object.extractall('temp/')
+        zip_object.close()
+
+        # removing extracted zipfile
+        os.remove(zip_file_name)
+
+        # get subtitle file path in temp folder
+        subtitle_file_path = SubSceneScrapper.__get_subtitle_from_temp()
+
+        # move the file to the specified path
+        shutil.move(subtitle_file_path, path + self.filename + '.srt')
+
+        # remove temp folder
+        shutil.rmtree('temp')
+
+    @staticmethod
+    def __get_subtitle_full_link(subtitle):
+        return SubSceneScrapper.SUBSCENE_DOMAIN + subtitle['uri']
+
+    @staticmethod
+    def __get_subtitle_from_temp():
+        for _, _, filenames in os.walk("temp/"):
+            for filename in filenames:
+                # if is hidden file ignore
+                if filename[0] != '.':
+                    return 'temp/' + filename
+
+
