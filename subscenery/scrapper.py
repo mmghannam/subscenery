@@ -2,7 +2,12 @@ from bs4 import BeautifulSoup as soup
 import requests
 from itertools import islice
 import PTN
-import pdb
+from difflib import SequenceMatcher
+
+
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
 
 class Scrapper:
     def __init__(self, link):
@@ -108,3 +113,16 @@ class SubSceneScrapper(Scrapper):
                 raise ValueError("Couldn't find a match for '{}'".format(self.movie_name))
         else:
             return self.__get_subtitles_from_uri(search_result['Exact'][0]['uri'])
+
+    def get_best_match_subtitle(self):
+        subtitles = self.get_subtitles()
+        max_similarity = 0
+        best_match = None
+        for language, list_of_subtitles in subtitles.items():
+            for subtitle in list_of_subtitles:
+                similarity = similar(subtitle['title'], self.movie_name)
+                if similarity > max_similarity:
+                    max_similarity = similarity
+                    best_match = subtitle
+
+        return best_match
