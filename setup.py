@@ -14,5 +14,6 @@ setup(
         'bs4',
         'requests',
         'parse-torrent-name'
-    ]
+    ],
+    scripts=['bin/subscenery_run']
 )
