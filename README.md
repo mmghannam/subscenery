@@ -3,6 +3,14 @@
 
 A subscene.com website scrapper written in python, that outputs a nicely formatted objects for movie/series subtitles
 
+## Installing
+Download and extract the source code from the dist/ directory.
+inside the code directory you can install by simply running
+```
+python setup.py install
+subscenery_run --help
+```
+
 ## Dependencies
 **BeautifulSoup4**
 ```
