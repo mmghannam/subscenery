@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+from subscenery.scrapper import SubSceneScrapper
+import argparse
+import os
+import re
+
+def get_media_file_name():
+    """
+    Search for a media file representing a movie in the current directory and
+    returns its name
+    :return: a string representing a media file name or ""
+    """
+    files_names = os.listdir(os.curdir)
+    for file_name in files_names:
+        if re.match(r'(.*).(wmv|avi|flv|mov|mkv|mp..?|swf|ra.?|rm|as.|m4[av]|smi.?)', file_name):
+            return file_name
+    return ""
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', '--movie', help='Search for a movie subtitle. (default)')
+parser.add_argument("-f", "--filename", type=str, default=get_media_file_name(), help="the filename of the movie (if empty"
+                                                                                      " will search for a media file in the current"
+                                                                                      " path")
+parser.add_argument("-l", "--language", type=str, default="English", help="language desired (default English)")
+args = parser.parse_args()
+
+movie_name = args.filename
+
+print("Download: ({}) subtitle for {}.".format(args.language, movie_name))
+
+# initialize scrapper
+scrapper = SubSceneScrapper(movie_name, is_filename=True)
+# get subtitles
+scrapper.get_subtitles()
+# get best match subtitle for language
+best_match = scrapper.get_best_match_subtitle(args.language)
+# download subtitle to current path
+scrapper.download_subtitle_to_path(best_match, '')
