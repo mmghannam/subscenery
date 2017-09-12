@@ -8,22 +8,10 @@ Download and extract the source code from the dist/ directory.
 inside the code directory you can install by simply running
 ```
 python setup.py install
+```
+## Command line usage
 subscenery_run --help
-```
 
-## Dependencies
-**BeautifulSoup4**
-```
-pip install bs4
-```
-**requests**
-```
-pip install requests
-```
-**parse-torrent-name**
-```
-pip install parse-torrent-name
-```
 ## Usage
 ```python
 from subscenery.scrapper import SubSceneScrapper
